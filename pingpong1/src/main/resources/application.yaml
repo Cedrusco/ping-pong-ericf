@@ -2,8 +2,8 @@ app:
   minDelaySeconds: 1
   maxDelaySeconds: 5
   topic:
-    ping: topic.ping
-    pong: topic.pong
+    ping: ping
+    pong: pong
 kafka:
   bootstrapServers: localhost:9092
   kafkaAppId: ping-pong

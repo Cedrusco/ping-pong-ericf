@@ -1,42 +1,48 @@
 package com.cedrus.pingpong.service;
 
 import com.cedrus.pingpong.config.AppConfig;
+import com.cedrus.pingpong.config.TopicConfig;
 import com.cedrus.pingpong.kafka.PingPongConsumer;
 import com.cedrus.pingpong.kafka.PingPongProducer;
+import com.cedrus.pingpong.model.PingPongMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
-//Listens for "pings", sends "pongs"
 @Slf4j
 @Service
-public class PlayerOne {
+public class Player {
     @Autowired
     AppConfig appConfig;
+    @Autowired
+    TopicConfig topicConfig;
     @Autowired
     PingPongProducer producer;
     @Autowired
     PingPongConsumer consumer;
 
-    public void startPlaying() {
-        consumer.startListening("ping", respond);
+    public void startPlaying(String topic) {
+        consumer.startListening(topic, respond);
     }
 
-    Function<String, String> respond = (message) -> {
+    Consumer<PingPongMessage> respond = pingPongMessage -> {
         int minDelaySec = appConfig.getMinDelaySeconds();
         int maxDelaySec = appConfig.getMaxDelaySeconds();
         int deltaDelaySec = maxDelaySec - minDelaySec;
         Random random = new Random();
         int sleepTime = random.nextInt(deltaDelaySec) + minDelaySec;
+
+        //Determine the topic to respond with (Ping->Pong, Pong->Ping)
+        String newTopic = pingPongMessage.getTopic().equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
         try {
             Thread.sleep(sleepTime * 1000L);
-            producer.sendMessage(message, "Hello1!!!");
+            //REPLACE WITH NEW TOPIC
+            producer.sendMessage(newTopic, pingPongMessage.getMessage());
         } catch (Exception e) {
             log.error(String.valueOf(e));
         }
-        return null;
     };
 }

@@ -1,6 +1,7 @@
 package com.cedrus.pingpong.kafka;
 
 import com.cedrus.pingpong.config.KafkaConfig;
+import com.cedrus.pingpong.model.PingPongMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -10,7 +11,7 @@ import org.springframework.stereotype.Component;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
-import java.util.function.Function;
+
 
 @Slf4j
 @Component
@@ -18,8 +19,8 @@ public class PingPongConsumer {
     @Autowired
     private KafkaConfig kafkaConfig;
 
-    public void startListening(String topic, Function<String, String> handler) {
-        log.info("==== STARTED LISTENING ====");
+    public void startListening(String topic, java.util.function.Consumer<PingPongMessage> handler) {
+        log.info("==== STARTED LISTENING ON " + topic + " ====");
         Consumer consumer = createConsumer(topic);
         final int giveUp = 500;
         int noRecordsCount = 0;
@@ -32,10 +33,12 @@ public class PingPongConsumer {
                 else continue;
             }
             for (ConsumerRecord<String, String> record : consumerRecords) {
+                System.out.println("==== GOT MESSAGE ====");
                 log.info(record.topic() + " " + record.value());
-                handler.apply(record.value());
+                PingPongMessage newMessage = new PingPongMessage(record.topic(), record.value());
+                handler.accept(newMessage);
+                System.out.println("==== END OF MESSAGE ====");
             }
-
             consumer.commitAsync();
         }
         consumer.close();
