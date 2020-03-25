@@ -17,7 +17,7 @@ public class PingPongProducer {
     @Autowired private KafkaConfig config;
 
     public void sendMessage(String topic, String message) {
-        log.info("Sending " + message);
+        log.info("==== SENDING MESSAGE ====");
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
