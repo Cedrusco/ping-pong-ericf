@@ -1,6 +1,6 @@
-package com.pingpong.pingpong.kafka;
+package com.cedrus.pingpong.kafka;
 
-import com.pingpong.pingpong.config.KafkaConfig;
+import com.cedrus.pingpong.config.KafkaConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -18,7 +18,6 @@ public class PingPongProducer {
 
     public void sendMessage(String topic, String message) {
         log.info("Sending " + message);
-        System.out.println(config.getTransactionalId());
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");

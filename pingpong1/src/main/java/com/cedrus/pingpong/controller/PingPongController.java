@@ -1,6 +1,6 @@
-package com.pingpong.pingpong.controller;
+package com.cedrus.pingpong.controller;
 
-import com.pingpong.pingpong.kafka.PingPongProducer;
+import com.cedrus.pingpong.kafka.PingPongProducer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
