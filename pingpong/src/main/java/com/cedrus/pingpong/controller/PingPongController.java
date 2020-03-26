@@ -26,6 +26,6 @@ public class PingPongController {
     }
 
     private void addBall(String ballType) {
-        producer.sendMessage(ballType, "Ball");
+        producer.sendMessage(ballType, "1");
     }
 }

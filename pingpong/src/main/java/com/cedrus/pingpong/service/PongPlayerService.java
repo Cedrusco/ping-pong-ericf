@@ -7,6 +7,7 @@ import com.cedrus.pingpong.kafka.PingPongProducer;
 import com.cedrus.pingpong.model.PingPongMessage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import java.util.Random;
@@ -14,7 +15,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Service
-public class Player {
+public class PongPlayerService {
     @Autowired
     AppConfig appConfig;
     @Autowired
@@ -24,8 +25,8 @@ public class Player {
     @Autowired
     PingPongConsumer consumer;
 
-    public void startPlaying(String topic) {
-        consumer.startListening(topic, respond);
+    public void startPlaying() {
+        consumer.startListening(topicConfig.getPong(), respond);
     }
 
     Consumer<PingPongMessage> respond = pingPongMessage -> {
@@ -35,11 +36,10 @@ public class Player {
         Random random = new Random();
         int sleepTime = random.nextInt(deltaDelaySec) + minDelaySec;
 
-        //Determine the topic to respond with (Ping->Pong, Pong->Ping)
         String newTopic = pingPongMessage.getTopic().equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
         try {
             Thread.sleep(sleepTime * 1000L);
-            producer.sendMessage(newTopic, pingPongMessage.getMessage());
+            producer.sendMessage(newTopic, Integer.toString(Integer.parseInt(pingPongMessage.getMessage())+1));
         } catch (Exception e) {
             log.error(String.valueOf(e));
         }
