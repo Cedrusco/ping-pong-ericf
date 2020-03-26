@@ -39,7 +39,6 @@ public class Player {
         String newTopic = pingPongMessage.getTopic().equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
         try {
             Thread.sleep(sleepTime * 1000L);
-            //REPLACE WITH NEW TOPIC
             producer.sendMessage(newTopic, pingPongMessage.getMessage());
         } catch (Exception e) {
             log.error(String.valueOf(e));

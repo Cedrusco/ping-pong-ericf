@@ -33,11 +33,10 @@ public class PingPongConsumer {
                 else continue;
             }
             for (ConsumerRecord<String, String> record : consumerRecords) {
-                System.out.println("==== GOT MESSAGE ====");
-                log.info(record.topic() + " " + record.value());
+                log.info("==== GOT MESSAGE ====");
+                log.info("==== " + record.topic() + " " + record.value() + " ====");
                 PingPongMessage newMessage = new PingPongMessage(record.topic(), record.value());
                 handler.accept(newMessage);
-                System.out.println("==== END OF MESSAGE ====");
             }
             consumer.commitAsync();
         }
