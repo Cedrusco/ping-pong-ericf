@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Random;
 import java.util.function.Consumer;
 
@@ -25,20 +26,24 @@ public class PingPlayerService implements Runnable {
     PingPongConsumer consumer;
 
     public void run() {
-        consumer.startListening(topicConfig.getPing(), respond);
+        try {
+            consumer.startListening(topicConfig.getPing(), respond);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    Consumer<PingPongMessage> respond = pingPongMessage -> {
+    Consumer<PingPongMessage> respond = message -> {
         int minDelaySec = appConfig.getMinDelaySeconds();
         int maxDelaySec = appConfig.getMaxDelaySeconds();
         int deltaDelaySec = maxDelaySec - minDelaySec;
         Random random = new Random();
         int sleepTime = random.nextInt(deltaDelaySec) + minDelaySec;
 
-        String newTopic = pingPongMessage.getTopic().equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
+        String newTopic = message.getTopic().equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
         try {
             Thread.sleep(sleepTime * 1000L);
-            producer.sendMessage(newTopic, Integer.toString(Integer.parseInt(pingPongMessage.getMessage())+1));
+            producer.sendMessage(new PingPongMessage(newTopic, Integer.toString(Integer.parseInt(message.getCount()) + 1), message.getColor()));
         } catch (Exception e) {
             log.error(String.valueOf(e));
         }

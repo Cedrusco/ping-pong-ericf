@@ -1,6 +1,9 @@
 package com.cedrus.pingpong.kafka;
 
 import com.cedrus.pingpong.config.KafkaConfig;
+import com.cedrus.pingpong.model.PingPongMessage;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -16,16 +19,16 @@ import java.util.Properties;
 public class PingPongProducer {
     @Autowired private KafkaConfig config;
 
-    public void sendMessage(String topic, String message) {
+    public void sendMessage(PingPongMessage message) throws JsonProcessingException {
         log.info("==== SENDING MESSAGE ====");
-        log.info("==== " + topic + " " + message + " ====");
+        log.info("==== " + message.getTopic() + " " + message + " ====");
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 
         Producer<String, String> producer = new KafkaProducer<>(props);
-        producer.send(new ProducerRecord<>(topic, null, message));
+        producer.send(new ProducerRecord<>(message.getTopic(), null, new ObjectMapper().writeValueAsString(message)));
         producer.close();
     }
 }

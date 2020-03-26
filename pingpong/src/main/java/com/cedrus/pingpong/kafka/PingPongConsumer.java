@@ -2,12 +2,14 @@ package com.cedrus.pingpong.kafka;
 
 import com.cedrus.pingpong.config.KafkaConfig;
 import com.cedrus.pingpong.model.PingPongMessage;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.time.Duration;
 import java.util.Collections;
 import java.util.Properties;
@@ -19,7 +21,7 @@ public class PingPongConsumer {
     @Autowired
     private KafkaConfig kafkaConfig;
 
-    public void startListening(String topic, java.util.function.Consumer<PingPongMessage> handler) {
+    public void startListening(String topic, java.util.function.Consumer<PingPongMessage> handler) throws IOException {
         log.info("==== STARTED LISTENING ON " + topic + " ====");
         Consumer consumer = createConsumer(topic);
         final int giveUp = 500;
@@ -34,9 +36,9 @@ public class PingPongConsumer {
             }
             for (ConsumerRecord<String, String> record : consumerRecords) {
                 log.info("==== GOT MESSAGE ====");
-                log.info("==== " + record.topic() + " " + record.value() + " ====");
-                PingPongMessage newMessage = new PingPongMessage(record.topic(), record.value());
-                handler.accept(newMessage);
+                PingPongMessage data = new ObjectMapper().readValue(record.value(), PingPongMessage.class);
+                log.info("==== " + data.getTopic() + " " + data.getColor() + " " + data.getCount() + " ====");
+                handler.accept(data);
             }
             consumer.commitAsync();
         }
