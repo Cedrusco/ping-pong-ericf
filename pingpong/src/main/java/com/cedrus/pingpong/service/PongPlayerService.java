@@ -15,7 +15,7 @@ import java.util.function.Consumer;
 
 @Slf4j
 @Service
-public class PongPlayerService {
+public class PongPlayerService implements Runnable {
     @Autowired
     AppConfig appConfig;
     @Autowired
@@ -25,7 +25,7 @@ public class PongPlayerService {
     @Autowired
     PingPongConsumer consumer;
 
-    public void startPlaying() {
+    public void run() {
         consumer.startListening(topicConfig.getPong(), respond);
     }
 
