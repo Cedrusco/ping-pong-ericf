@@ -1,14 +1,18 @@
 package com.cedrus.pingpong.model;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Data
 public class PingPongMessage {
-    private String topic;
-    private String message;
+    @Autowired private String topic;
+    @Autowired private String count;
+    @Autowired private String color;
 
-    public PingPongMessage(String topic, String message) {
+    public PingPongMessage(String topic, String count, String color) {
         this.topic = topic;
-        this.message = message;
+        this.count = count;
+        this.color = color;
     }
+    public PingPongMessage(){}
 }
