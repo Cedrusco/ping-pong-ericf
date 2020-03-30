@@ -21,7 +21,7 @@ public class PingPongProducer {
 
     public void sendMessage(PingPongMessage message) throws JsonProcessingException {
         log.info("==== SENDING MESSAGE ====");
-        log.info("==== " + message.getTopic() + " " + message + " ====");
+        log.info("==== " + message.getTopic() + " ====");
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");

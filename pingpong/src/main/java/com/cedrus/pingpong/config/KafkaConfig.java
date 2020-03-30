@@ -11,4 +11,5 @@ import org.springframework.stereotype.Component;
 public class KafkaConfig {
     private String bootstrapServers;
     private String groupId;
+    private String kafkaAppId;
 }

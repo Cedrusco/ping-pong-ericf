@@ -13,10 +13,8 @@ public class StartPlayersService {
 
     @Bean
     public void startPlayers() {
-        log.info("~~~~~~~~~~~~~~~~~~~~~~~~Starting Ping~~~~~~~~~~~~~~~~~~~~~~~~");
-        Thread pingThread = new Thread(pingPlayerService);
-        Thread pongThread = new Thread(pongPlayerService);
-        pingThread.start();
-        pongThread.start();
+        log.info("~~~~~~~~~~~~~~~~~~~~~~~~Starting Ping Pong~~~~~~~~~~~~~~~~~~~~~~~~");
+        pingPlayerService.run();
+        pongPlayerService.run();
     }
 }
