@@ -12,4 +12,5 @@ import org.springframework.stereotype.Component;
 public class TopicConfig {
     private String ping;
     private String pong;
+    private String pingPong;
 }

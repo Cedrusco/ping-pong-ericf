@@ -27,13 +27,7 @@ public class PingPongController {
     public ResponseEntity<PingPongResponse> startPing(@RequestBody PingPongRequest pingPongRequest) {
         PingPongResponse response = new PingPongResponse();
 
-        if (!pingPongRequest.getTopic().toUpperCase().equals("PING")
-                && !pingPongRequest.getTopic().toUpperCase().equals("PONG")) {
-            response.setSuccess(false);
-            response.setResponseText("Invalid topic name, please choose either Ping or Pong");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
-        }
-        String topic = "";
+        String topic = pingPongRequest.getTopic();
         if (pingPongRequest.getTopic().toUpperCase().equals("PING")) topic = topicConfig.getPing();
         if (pingPongRequest.getTopic().toUpperCase().equals("PONG")) topic = topicConfig.getPong();
 
@@ -41,7 +35,6 @@ public class PingPongController {
             if (pingPongRequest.getColor() == null) throw new Exception("Must include color!");
             addBall(topic, pingPongRequest.getColor());
         } catch (Exception e) {
-            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             response.setSuccess(false);
             response.setResponseText(e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);

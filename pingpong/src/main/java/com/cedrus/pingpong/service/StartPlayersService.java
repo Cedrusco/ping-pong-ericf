@@ -10,11 +10,13 @@ import org.springframework.stereotype.Component;
 public class StartPlayersService {
     private PingPlayerService pingPlayerService;
     private PongPlayerService pongPlayerService;
+    private PingPongPlayerService pingPongPlayerService;
 
     @Autowired
-    public StartPlayersService(PingPlayerService pingPlayerService, PongPlayerService pongPlayerService) {
+    public StartPlayersService(PingPlayerService pingPlayerService, PongPlayerService pongPlayerService, PingPongPlayerService pingPongPlayerService) {
         this.pingPlayerService = pingPlayerService;
         this.pongPlayerService = pongPlayerService;
+        this.pingPongPlayerService = pingPongPlayerService;
     }
 
     @Bean
@@ -22,5 +24,6 @@ public class StartPlayersService {
         log.info("~~~~~~~~~~~~~~~~~~~~~~~~Starting Ping Pong~~~~~~~~~~~~~~~~~~~~~~~~");
         pingPlayerService.run();
         pongPlayerService.run();
+        pingPongPlayerService.run();
     }
 }

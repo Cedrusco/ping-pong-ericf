@@ -37,22 +37,26 @@ public class PingPongStream {
         this.objectMapper = objectMapper;
     }
 
-    public void startListening(String topic) throws IOException {
-        log.info("==== STARTED LISTENING ON " + topic + " ====");
-        createStream(topic);
+    public void startStream(String topic) throws IOException {
+        log.info("==== STARTED STREAM ON " + topic + " ====");
+        Serde<String> stringSerde = Serdes.String();
+
+        buildStream(topic, stringSerde);
     }
 
-    public void createStream(String topic) {
+    private void transformAndProduceStream(String topic, KStream stream, Serde serde) {
+        KStream<String, String> mappedValuesStream = stream.transformValues(createMessageProcessor());
+        mappedValuesStream.to(topic, Produced.with(serde, serde));
+    }
+
+    private void buildStream(String topic, Serde serde) {
         Properties props = new Properties();
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, kafkaConfig.getKafkaAppId() + topic);
-
         StreamsBuilder builder = new StreamsBuilder();
-        Serde<String> stringSerde = Serdes.String();
-        KStream stream = builder.stream(topic, Consumed.with(stringSerde, stringSerde));
-        String newTopic = topic.equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
-        KStream<String, String> mappedValues = stream.transformValues(createMessageProcessor());
-        mappedValues.to(newTopic, Produced.with(stringSerde, stringSerde));
+
+        KStream stream = builder.stream(topic, Consumed.with(serde, serde));
+        transformAndProduceStream(topic, stream, serde);
         KafkaStreams streams = new KafkaStreams(builder.build(), props);
         streams.start();
     }
@@ -73,8 +77,6 @@ public class PingPongStream {
                 }
 
                 log.info("=======" + message.getTopic() + " " + message.getColor() + " " + message.getCount() + "=======");
-                String newTopic = message.getTopic().equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
-                message.setTopic(newTopic);
                 message.setCount(Integer.toString(Integer.parseInt(message.getCount()) + 1));
 
                 int minDelaySec = appConfig.getMinDelaySeconds();

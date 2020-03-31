@@ -22,7 +22,7 @@ public class PongPlayerService implements Runnable {
 
     public void run() {
         try {
-            pongStream.startListening(topicConfig.getPong());
+            pongStream.startStream(topicConfig.getPong());
         } catch (IOException e) {
             e.printStackTrace();
         }

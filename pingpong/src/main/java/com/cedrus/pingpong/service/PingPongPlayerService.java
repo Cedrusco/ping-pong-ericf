@@ -10,19 +10,23 @@ import java.io.IOException;
 
 @Slf4j
 @Service
-public class PingPlayerService implements Runnable {
+//Service for One-Topic Solution
+public class PingPongPlayerService implements Runnable {
     TopicConfig topicConfig;
-    PingPongStream pingStream;
+    PingPongStream playerOne;
+    PingPongStream playerTwo;
 
     @Autowired
-    public PingPlayerService(TopicConfig topicConfig, PingPongStream pingStream) {
+    public PingPongPlayerService(TopicConfig topicConfig, PingPongStream playerOne, PingPongStream playerTwo) {
         this.topicConfig = topicConfig;
-        this.pingStream = pingStream;
+        this.playerOne = playerOne;
+        this.playerTwo = playerTwo;
     }
 
     public void run() {
         try {
-            pingStream.startStream(topicConfig.getPing());
+            playerOne.startStream(topicConfig.getPingPong());
+            playerTwo.startStream(topicConfig.getPingPong());
         } catch (IOException e) {
             e.printStackTrace();
         }

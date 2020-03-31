@@ -4,6 +4,7 @@ app:
   topic:
     ping: ping
     pong: pong
+    pingPong: pingpong
 kafka:
   bootstrapServers: localhost:9092
   kafkaAppId: ping-pong
