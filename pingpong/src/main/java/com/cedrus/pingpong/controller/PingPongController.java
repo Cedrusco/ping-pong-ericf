@@ -11,19 +11,12 @@ import org.springframework.web.bind.annotation.*;
 public class PingPongController {
     @Autowired private PingPongProducer producer;
 
-    @RequestMapping(value = "/ball", method = RequestMethod.POST)
+    @PostMapping(value = "/ball")
     @ResponseBody
     public String startPing(@RequestBody PingPongRequest pingPongRequest) throws JsonProcessingException {
         addBall(pingPongRequest.getTopic(), pingPongRequest.getColor());
         return "Started Ping!";
     }
-
-//    @RequestMapping(value = "/pong", method = RequestMethod.POST)
-//    @ResponseBody
-//    public String startPong() {
-//        addBall("pong");
-//        return "Started Pong!";
-//    }
 
     private void addBall(String topic, String color) throws JsonProcessingException {
         producer.sendMessage(new PingPongMessage(topic, "1", color));
