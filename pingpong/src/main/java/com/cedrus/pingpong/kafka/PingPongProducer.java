@@ -19,21 +19,23 @@ import java.util.Properties;
 public class PingPongProducer {
     private KafkaConfig kafkaConfig;
     private ObjectMapper objectMapper;
+    private Producer<String, String> producer;
+
     @Autowired public PingPongProducer(KafkaConfig kafkaConfig, ObjectMapper objectMapper) {
         this.kafkaConfig = kafkaConfig;
         this.objectMapper = objectMapper;
+
+        Properties props = new Properties();
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
+        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        this.producer = new KafkaProducer<>(props);
     }
 
     public void sendMessage(PingPongMessage message) throws JsonProcessingException {
         log.info("==== SENDING MESSAGE ====");
         log.info("==== " + message.getTopic() + " ====");
-        Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
-        props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
-        props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 
-        Producer<String, String> producer = new KafkaProducer<>(props);
         producer.send(new ProducerRecord<>(message.getTopic(), null, objectMapper.writeValueAsString(message)));
-        producer.close();
     }
 }

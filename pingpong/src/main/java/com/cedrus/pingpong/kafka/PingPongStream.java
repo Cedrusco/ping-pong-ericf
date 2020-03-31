@@ -51,13 +51,13 @@ public class PingPongStream {
         Serde<String> stringSerde = Serdes.String();
         KStream stream = builder.stream(topic, Consumed.with(stringSerde, stringSerde));
         String newTopic = topic.equals(topicConfig.getPing()) ? topicConfig.getPong() : topicConfig.getPing();
-        KStream<String, String> mappedValues = stream.transformValues(processMessage());
+        KStream<String, String> mappedValues = stream.transformValues(createMessageProcessor());
         mappedValues.to(newTopic, Produced.with(stringSerde, stringSerde));
         KafkaStreams streams = new KafkaStreams(builder.build(), props);
         streams.start();
     }
 
-    private ValueTransformerSupplier<String, String> processMessage() {
+    private ValueTransformerSupplier<String, String> createMessageProcessor() {
         return () -> new ValueTransformer<String, String>() {
             @Override
             public void init(ProcessorContext context) {
