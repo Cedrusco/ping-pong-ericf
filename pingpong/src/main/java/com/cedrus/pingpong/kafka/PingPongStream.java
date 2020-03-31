@@ -28,11 +28,13 @@ public class PingPongStream {
     private KafkaConfig kafkaConfig;
     private TopicConfig topicConfig;
     private AppConfig appConfig;
+    private ObjectMapper objectMapper;
 
-    @Autowired PingPongStream(KafkaConfig kafkaConfig, TopicConfig topicConfig, AppConfig appConfig) {
+    @Autowired PingPongStream(KafkaConfig kafkaConfig, TopicConfig topicConfig, AppConfig appConfig, ObjectMapper objectMapper) {
         this.kafkaConfig = kafkaConfig;
         this.topicConfig = topicConfig;
         this.appConfig = appConfig;
+        this.objectMapper = objectMapper;
     }
 
     public void startListening(String topic) throws IOException {
@@ -65,7 +67,7 @@ public class PingPongStream {
             public String transform(String messageAsString) {
                 PingPongMessage message = new PingPongMessage();
                 try {
-                    message = new ObjectMapper().readValue(messageAsString, PingPongMessage.class);
+                    message = objectMapper.readValue(messageAsString, PingPongMessage.class);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -82,7 +84,7 @@ public class PingPongStream {
                 int sleepTime = random.nextInt(deltaDelaySec) + minDelaySec;
                 try {
                     Thread.sleep(sleepTime * 1000L);
-                    return new ObjectMapper().writeValueAsString(message);
+                    return objectMapper.writeValueAsString(message);
                 } catch (InterruptedException | JsonProcessingException e) {
                     e.printStackTrace();
                 }
