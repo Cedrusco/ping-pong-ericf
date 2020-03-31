@@ -1,6 +1,5 @@
 package com.cedrus.pingpong.service;
 
-import com.cedrus.pingpong.config.AppConfig;
 import com.cedrus.pingpong.config.TopicConfig;
 import com.cedrus.pingpong.kafka.PingPongStream;
 import lombok.extern.slf4j.Slf4j;
@@ -12,12 +11,14 @@ import java.io.IOException;
 @Slf4j
 @Service
 public class PingPlayerService implements Runnable {
-    @Autowired
-    AppConfig appConfig;
-    @Autowired
     TopicConfig topicConfig;
-    @Autowired
     PingPongStream pingStream;
+
+    @Autowired
+    public PingPlayerService(TopicConfig topicConfig, PingPongStream pingStream) {
+        this.topicConfig = topicConfig;
+        this.pingStream = pingStream;
+    }
 
     public void run() {
         try {

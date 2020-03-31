@@ -25,12 +25,15 @@ import java.util.Random;
 @Slf4j
 @Component
 public class PingPongStream {
-    @Autowired
     private KafkaConfig kafkaConfig;
-    @Autowired
     private TopicConfig topicConfig;
-    @Autowired
     private AppConfig appConfig;
+
+    @Autowired PingPongStream(KafkaConfig kafkaConfig, TopicConfig topicConfig, AppConfig appConfig) {
+        this.kafkaConfig = kafkaConfig;
+        this.topicConfig = topicConfig;
+        this.appConfig = appConfig;
+    }
 
     public void startListening(String topic) throws IOException {
         log.info("==== STARTED LISTENING ON " + topic + " ====");

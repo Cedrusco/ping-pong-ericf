@@ -17,13 +17,16 @@ import java.util.Properties;
 @Slf4j
 @Component
 public class PingPongProducer {
-    @Autowired private KafkaConfig config;
+    private KafkaConfig kafkaConfig;
+    @Autowired public PingPongProducer(KafkaConfig kafkaConfig) {
+        this.kafkaConfig = kafkaConfig;
+    }
 
     public void sendMessage(PingPongMessage message) throws JsonProcessingException {
         log.info("==== SENDING MESSAGE ====");
         log.info("==== " + message.getTopic() + " ====");
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
 

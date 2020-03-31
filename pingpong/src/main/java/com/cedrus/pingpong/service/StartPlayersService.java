@@ -8,8 +8,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class StartPlayersService {
-    @Autowired PingPlayerService pingPlayerService;
-    @Autowired PongPlayerService pongPlayerService;
+    private PingPlayerService pingPlayerService;
+    private PongPlayerService pongPlayerService;
+
+    @Autowired
+    public StartPlayersService(PingPlayerService pingPlayerService, PongPlayerService pongPlayerService) {
+        this.pingPlayerService = pingPlayerService;
+        this.pongPlayerService = pongPlayerService;
+    }
 
     @Bean
     public void startPlayers() {

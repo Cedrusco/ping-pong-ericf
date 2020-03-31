@@ -22,7 +22,7 @@ public class PingPongController {
     @ResponseBody
     public String startPing(@RequestBody PingPongRequest pingPongRequest) throws JsonProcessingException {
         addBall(pingPongRequest.getTopic(), pingPongRequest.getColor());
-        return "Started Ping!";
+        return "Started Game!";
     }
 
     private void addBall(String topic, String color) throws JsonProcessingException {
