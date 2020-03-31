@@ -38,8 +38,10 @@ public class PingPongController {
         if (pingPongRequest.getTopic().toUpperCase().equals("PONG")) topic = topicConfig.getPong();
 
         try {
+            if (pingPongRequest.getColor() == null) throw new Exception("Must include color!");
             addBall(topic, pingPongRequest.getColor());
         } catch (Exception e) {
+            System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
             response.setSuccess(false);
             response.setResponseText(e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
