@@ -22,8 +22,6 @@ public class StartPlayersService {
     @Bean
     public void startPlayers() {
         log.info("~~~~~~~~~~~~~~~~~~~~~~~~Starting Ping Pong~~~~~~~~~~~~~~~~~~~~~~~~");
-        pingPlayerService.run();
-        pongPlayerService.run();
         pingPongPlayerService.run();
     }
 }

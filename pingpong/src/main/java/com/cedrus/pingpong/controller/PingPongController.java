@@ -39,6 +39,8 @@ public class PingPongController {
             response.setResponseText(e.getMessage());
             return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
         }
+        response.setSuccess(true);
+        response.setResponseText("Started Game!");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
