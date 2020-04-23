@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Properties;
 import java.util.Random;
 
@@ -30,38 +31,51 @@ public class PingPongStream {
     private AppConfig appConfig;
     private ObjectMapper objectMapper;
 
-    @Autowired PingPongStream(KafkaConfig kafkaConfig, TopicConfig topicConfig, AppConfig appConfig, ObjectMapper objectMapper) {
+    @Autowired PingPongStream(KafkaConfig kafkaConfig,
+                              TopicConfig topicConfig,
+                              AppConfig appConfig,
+                              ObjectMapper objectMapper)
+    {
         this.kafkaConfig = kafkaConfig;
         this.topicConfig = topicConfig;
         this.appConfig = appConfig;
         this.objectMapper = objectMapper;
     }
 
-    public void startStream(String topic) throws IOException {
-        log.info("==== STARTED STREAM ON " + topic + " ====");
+    public void startStream(String teamGroupId, String playerId) throws IOException {
+
+        log.info("==== STARTED STREAM ON " + topicConfig.getPingPong() + " ====");
         Serde<String> stringSerde = Serdes.String();
 
-        buildStream(topic, stringSerde);
+        buildStream(teamGroupId, stringSerde, playerId);
     }
 
-    private void transformAndProduceStream(String topic, KStream stream, Serde serde) {
-        KStream<String, String> mappedValuesStream = stream.transformValues(createMessageProcessor());
-        mappedValuesStream.to(topic, Produced.with(serde, serde));
+    private void transformAndProduceStream(KStream stream, Serde serde, String playerId) {
+        KStream<String, String> mappedValuesStream = stream.transformValues(createMessageProcessor(playerId));
+        mappedValuesStream.to(topicConfig.getPingPong(), Produced.with(serde, serde));
     }
 
-    private void buildStream(String topic, Serde serde) {
+    private void buildStream(String teamGroupId, Serde serde, String playerId) {
         Properties props = new Properties();
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
-        props.put(StreamsConfig.APPLICATION_ID_CONFIG, kafkaConfig.getKafkaAppId() + topic);
+        props.put(StreamsConfig.APPLICATION_ID_CONFIG, teamGroupId);
+//        props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, StreamsPartitionAssignor.class.getName());
+
         StreamsBuilder builder = new StreamsBuilder();
 
-        KStream stream = builder.stream(topic, Consumed.with(serde, serde));
-        transformAndProduceStream(topic, stream, serde);
+        KStream stream = builder.stream(topicConfig.getPingPong(), Consumed.with(serde, serde));
+        stream.selectKey(new KeyValueMapper() {
+            @Override
+            public Object apply(Object key, Object value) {
+                return generateRandomString();
+            }
+        });
+        transformAndProduceStream(stream, serde, playerId);
         KafkaStreams streams = new KafkaStreams(builder.build(), props);
         streams.start();
     }
 
-    private ValueTransformerSupplier<String, String> createMessageProcessor() {
+    private ValueTransformerSupplier<String, String> createMessageProcessor(String playerId) {
         return () -> new ValueTransformer<String, String>() {
             @Override
             public void init(ProcessorContext context) {
@@ -76,7 +90,7 @@ public class PingPongStream {
                     e.printStackTrace();
                 }
 
-                log.info("=======" + message.getTopic() + " " + message.getColor() + " " + message.getCount() + "=======");
+                log.info("=======" + message.getTopic() + " " + message.getColor() + " " + message.getCount() + " " + playerId + "=======");
                 message.setCount(Integer.toString(Integer.parseInt(message.getCount()) + 1));
 
                 int minDelaySec = appConfig.getMinDelaySeconds();
@@ -97,5 +111,11 @@ public class PingPongStream {
             public void close() {
             }
         };
+    }
+
+    private String generateRandomString() {
+        byte[] array = new byte[7];
+        new Random().nextBytes(array);
+        return new String(array, Charset.forName("UTF-8"));
     }
 }

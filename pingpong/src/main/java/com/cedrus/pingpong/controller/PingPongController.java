@@ -28,8 +28,6 @@ public class PingPongController {
         PingPongResponse response = new PingPongResponse();
 
         String topic = pingPongRequest.getTopic();
-        if (pingPongRequest.getTopic().toUpperCase().equals("PING")) topic = topicConfig.getPing();
-        if (pingPongRequest.getTopic().toUpperCase().equals("PONG")) topic = topicConfig.getPong();
 
         try {
             if (pingPongRequest.getColor() == null) throw new Exception("Must include color!");

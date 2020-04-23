@@ -8,20 +8,19 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class StartPlayersService {
-    private PingPlayerService pingPlayerService;
-    private PongPlayerService pongPlayerService;
-    private PingPongPlayerService pingPongPlayerService;
+    private TeamAService teamAService;
+    private TeamBService teamBService;
 
     @Autowired
-    public StartPlayersService(PingPlayerService pingPlayerService, PongPlayerService pongPlayerService, PingPongPlayerService pingPongPlayerService) {
-        this.pingPlayerService = pingPlayerService;
-        this.pongPlayerService = pongPlayerService;
-        this.pingPongPlayerService = pingPongPlayerService;
+    public StartPlayersService(TeamAService teamAService, TeamBService teamBService) {
+        this.teamAService = teamAService;
+        this.teamBService = teamBService;
     }
 
     @Bean
-    public void startPlayers() {
+    public void startTeams() {
         log.info("~~~~~~~~~~~~~~~~~~~~~~~~Starting Ping Pong~~~~~~~~~~~~~~~~~~~~~~~~");
-        pingPongPlayerService.run();
+        teamAService.run();
+        teamBService.run();
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(prefix = "kafka")
 public class KafkaConfig {
     private String bootstrapServers;
-    private String groupId;
+    private String teamAGroupId;
+    private String teamBGroupId;
     private String kafkaAppId;
 }

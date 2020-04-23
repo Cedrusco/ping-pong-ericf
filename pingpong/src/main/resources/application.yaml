@@ -2,11 +2,10 @@ app:
   minDelaySeconds: 1
   maxDelaySeconds: 5
   topic:
-    ping: ping
-    pong: pong
     pingPong: pingpong
 kafka:
   bootstrapServers: localhost:9092
   kafkaAppId: ping-pong
   autoOffsetReset: latest
-  groupId: ping-pong
+  teamAGroupId: team-a
+  teamBGroupId: team-b
