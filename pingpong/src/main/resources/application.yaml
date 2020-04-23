@@ -1,6 +1,6 @@
 app:
-  minDelaySeconds: 1
-  maxDelaySeconds: 5
+  minDelaySeconds: 4
+  maxDelaySeconds: 10
   topic:
     pingPong: pingpong
 kafka:

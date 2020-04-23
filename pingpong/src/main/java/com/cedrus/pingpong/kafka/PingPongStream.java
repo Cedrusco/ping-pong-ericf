@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.util.Properties;
 import java.util.Random;
 
@@ -59,7 +58,6 @@ public class PingPongStream {
         Properties props = new Properties();
         props.put(StreamsConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, teamGroupId);
-//        props.put(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, StreamsPartitionAssignor.class.getName());
 
         StreamsBuilder builder = new StreamsBuilder();
 
@@ -67,10 +65,22 @@ public class PingPongStream {
         stream.selectKey(new KeyValueMapper() {
             @Override
             public Object apply(Object key, Object value) {
-                return generateRandomString();
+                double random = Math.random()*100;
+                log.info(Double.toString(random));
+                return Double.toString(random);
             }
         });
-        transformAndProduceStream(stream, serde, playerId);
+        KStream[] branches = stream.branch((key, value) -> {
+            log.info(value.toString());
+            PingPongMessage message = new PingPongMessage();
+            try {
+                message = objectMapper.readValue(value.toString(), PingPongMessage.class);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return message.getPlayerId() != playerId;
+        });
+        transformAndProduceStream(branches[0], serde, playerId);
         KafkaStreams streams = new KafkaStreams(builder.build(), props);
         streams.start();
     }
@@ -92,6 +102,7 @@ public class PingPongStream {
 
                 log.info("=======" + message.getTopic() + " " + message.getColor() + " " + message.getCount() + " " + playerId + "=======");
                 message.setCount(Integer.toString(Integer.parseInt(message.getCount()) + 1));
+                message.setPlayerId(playerId);
 
                 int minDelaySec = appConfig.getMinDelaySeconds();
                 int maxDelaySec = appConfig.getMaxDelaySeconds();
@@ -111,11 +122,5 @@ public class PingPongStream {
             public void close() {
             }
         };
-    }
-
-    private String generateRandomString() {
-        byte[] array = new byte[7];
-        new Random().nextBytes(array);
-        return new String(array, Charset.forName("UTF-8"));
     }
 }
