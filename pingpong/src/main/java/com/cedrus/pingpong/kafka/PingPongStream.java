@@ -20,6 +20,7 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.Properties;
 import java.util.Random;
+import java.util.UUID;
 
 
 @Slf4j
@@ -65,9 +66,8 @@ public class PingPongStream {
         stream.selectKey(new KeyValueMapper() {
             @Override
             public Object apply(Object key, Object value) {
-                double random = Math.random()*2;//Two partitions
-                log.info(Double.toString(random));
-                return Double.toString(random);
+                UUID random = UUID.randomUUID();
+                return random;
             }
         });
         KStream[] branches = stream.branch((key, value) -> {
