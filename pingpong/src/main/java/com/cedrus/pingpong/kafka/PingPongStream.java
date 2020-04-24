@@ -65,20 +65,22 @@ public class PingPongStream {
         stream.selectKey(new KeyValueMapper() {
             @Override
             public Object apply(Object key, Object value) {
-                double random = Math.random()*100;
+                double random = Math.random()*2;//Two partitions
                 log.info(Double.toString(random));
                 return Double.toString(random);
             }
         });
         KStream[] branches = stream.branch((key, value) -> {
-            log.info(value.toString());
             PingPongMessage message = new PingPongMessage();
             try {
                 message = objectMapper.readValue(value.toString(), PingPongMessage.class);
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            return message.getPlayerId() != playerId;
+            log.info("This player: " + playerId + "... Incoming ball's player: " + message.getPlayerId());
+            //Check that this ball has not been hit most recently by own team
+            String ballPlayerId = message.getPlayerId();
+            return !ballPlayerId.contains("" + playerId.charAt(0));
         });
         transformAndProduceStream(branches[0], serde, playerId);
         KafkaStreams streams = new KafkaStreams(builder.build(), props);
@@ -100,7 +102,7 @@ public class PingPongStream {
                     e.printStackTrace();
                 }
 
-                log.info("=======" + message.getTopic() + " " + message.getColor() + " " + message.getCount() + " " + playerId + "=======");
+                log.info("=======" + message.getTopic() + " " + message.getColor() + " " + message.getCount() + " " + playerId + " hitting " + "=======");
                 message.setCount(Integer.toString(Integer.parseInt(message.getCount()) + 1));
                 message.setPlayerId(playerId);
 

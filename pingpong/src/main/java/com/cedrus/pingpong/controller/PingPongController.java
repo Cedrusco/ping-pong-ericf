@@ -43,6 +43,6 @@ public class PingPongController {
     }
 
     private void addBall(String topic, String color) throws JsonProcessingException {
-        startGameService.startGame(new PingPongMessage(topic, "1", color, ""));
+        startGameService.startGame(new PingPongMessage(topic, "1", color, "A1")); //Must have a player "serve"
     }
 }
