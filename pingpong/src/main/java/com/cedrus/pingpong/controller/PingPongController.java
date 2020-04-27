@@ -1,5 +1,6 @@
 package com.cedrus.pingpong.controller;
 
+import com.cedrus.pingpong.config.TopicConfig;
 import com.cedrus.pingpong.model.PingPongMessage;
 import com.cedrus.pingpong.model.PingPongRequest;
 import com.cedrus.pingpong.model.PingPongResponse;
@@ -15,20 +16,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class PingPongController {
     private final StartGameService startGameService;
+    private final TopicConfig topicConfig;
     @Autowired
-    public PingPongController(StartGameService startGameService) {
+    public PingPongController(StartGameService startGameService, TopicConfig topicConfig) {
         this.startGameService = startGameService;
+        this.topicConfig = topicConfig;
     }
 
     @PostMapping(value = "/ball")
     public ResponseEntity<PingPongResponse> startPing(@RequestBody PingPongRequest pingPongRequest) {
         final PingPongResponse response = new PingPongResponse();
 
-        final String topic = pingPongRequest.getTopic();
-
         try {
             if (pingPongRequest.getColor() == null) throw new Exception("Must include color!");
-            addBall(topic, pingPongRequest.getColor());
+            addBall(pingPongRequest.getColor());
         } catch (Exception e) {
             response.setSuccess(false);
             response.setResponseText(e.getMessage());
@@ -39,7 +40,7 @@ public class PingPongController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    private void addBall(String topic, String color) throws JsonProcessingException {
-        startGameService.startGame(new PingPongMessage(topic, "1", color, "A1")); //Must have a player "serve"
+    private void addBall(String color) throws JsonProcessingException {
+        startGameService.startGame(new PingPongMessage(topicConfig.getPingPong(), "1", color, "A1")); //Must have a player "serve"
     }
 }

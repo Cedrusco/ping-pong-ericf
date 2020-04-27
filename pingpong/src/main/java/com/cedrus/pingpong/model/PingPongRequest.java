@@ -6,7 +6,5 @@ import lombok.Data;
 @Data
 public class PingPongRequest {
     @JsonProperty
-    private String topic;
-    @JsonProperty
     private String color;
 }
