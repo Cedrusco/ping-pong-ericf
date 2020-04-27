@@ -61,29 +61,41 @@ public class PingPongStream {
         props.put(StreamsConfig.APPLICATION_ID_CONFIG, teamGroupId);
 
         StreamsBuilder builder = new StreamsBuilder();
-
         KStream stream = builder.stream(topicConfig.getPingPong(), Consumed.with(serde, serde));
-        stream.selectKey(new KeyValueMapper() {
+        stream.selectKey(generateRandomUUID());
+
+        KStream ballReturnStream = removeTeamHitsFromStream(stream, playerId);
+        transformAndProduceStream(ballReturnStream, serde, playerId);
+        KafkaStreams streams = new KafkaStreams(builder.build(), props);
+        streams.start();
+    }
+
+    private KStream removeTeamHitsFromStream(KStream stream, String playerId) {
+        return stream.branch(new Predicate() {
+            @Override
+            public boolean test(Object key, Object value) {
+                PingPongMessage message = null;
+                try {
+                    message = objectMapper.readValue(value.toString(), PingPongMessage.class);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //Check that this ball has not been hit most recently by own team
+                String ballPlayerId = message.getPlayerId();
+                return !ballPlayerId.contains("" + playerId.charAt(0));
+            }
+        })[0];
+
+    }
+
+    private KeyValueMapper generateRandomUUID(){
+        return new KeyValueMapper() {
             @Override
             public Object apply(Object key, Object value) {
                 UUID random = UUID.randomUUID();
                 return random;
             }
-        });
-        KStream[] branches = stream.branch((key, value) -> {
-            PingPongMessage message = null;
-            try {
-                message = objectMapper.readValue(value.toString(), PingPongMessage.class);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //Check that this ball has not been hit most recently by own team
-            String ballPlayerId = message.getPlayerId();
-            return !ballPlayerId.contains("" + playerId.charAt(0));
-        });
-        transformAndProduceStream(branches[0], serde, playerId);
-        KafkaStreams streams = new KafkaStreams(builder.build(), props);
-        streams.start();
+        };
     }
 
     private ValueTransformerSupplier<String, String> createMessageProcessor(String playerId) {
