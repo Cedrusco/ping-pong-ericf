@@ -44,7 +44,7 @@ public class PingPongStream {
 
     public void startStream(String teamGroupId, String playerId) throws IOException {
 
-        log.info("==== STARTED STREAM ON " + topicConfig.getPingPong() + " ====");
+        log.info("==== STARTED STREAM ON {} ====", topicConfig.getPingPong());
         final Serde<String> stringSerde = Serdes.String();
 
         buildStream(teamGroupId, stringSerde, playerId);
@@ -77,7 +77,6 @@ public class PingPongStream {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            log.info("This player: playerId=%s ... Incoming ball's player: %b=s", playerId, message.getPlayerId());
             //Check that this ball has not been hit most recently by own team
             String ballPlayerId = message.getPlayerId();
             return !ballPlayerId.contains("" + playerId.charAt(0));
@@ -102,7 +101,8 @@ public class PingPongStream {
                     e.printStackTrace();
                 }
 
-                log.info("=======" + message.getTopic() + " " + message.getColor() + " " + message.getCount() + " " + playerId + " hitting " + "=======");
+                log.info("======= Topic: {}, Color: {}, Count: {}, Player: {} =======",
+                        message.getTopic(), message.getColor(), message.getCount(), playerId);
                 message.setCount(Integer.toString(Integer.parseInt(message.getCount()) + 1));
                 message.setPlayerId(playerId);
 

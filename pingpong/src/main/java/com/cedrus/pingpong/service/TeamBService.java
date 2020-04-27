@@ -24,7 +24,6 @@ public class TeamBService implements Runnable {
 
     public void run() {
         try {
-            log.info(kafkaConfig.getTeamAGroupId());
             teamBPlayerTwo.startStream(kafkaConfig.getTeamBGroupId(), "B1");
             teamBPlayerTwo.startStream(kafkaConfig.getTeamBGroupId(), "B2");
         } catch (IOException e) {

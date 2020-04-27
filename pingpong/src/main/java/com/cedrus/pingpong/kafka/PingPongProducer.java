@@ -33,8 +33,7 @@ public class PingPongProducer {
     }
 
     public void sendMessage(PingPongMessage message) throws JsonProcessingException {
-        log.info("==== SENDING MESSAGE ====");
-        log.info(message.getTopic());
+        log.info("==== SENDING MESSAGE ON {} ====", message.getTopic());
 
         producer.send(new ProducerRecord<>(message.getTopic(), null, objectMapper.writeValueAsString(message)));
     }
