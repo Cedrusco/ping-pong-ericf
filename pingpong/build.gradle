@@ -24,6 +24,7 @@ dependencies {
 	implementation 'org.springframework.kafka:spring-kafka'
 	compileOnly 'org.projectlombok:lombok'
 	compile group: 'org.springframework', name: 'spring-jdbc', version: '5.2.5.RELEASE'
+	compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.2.6.RELEASE'
 	runtimeOnly 'com.h2database:h2'
 	implementation 'org.postgresql:postgresql'
 	annotationProcessor 'org.projectlombok:lombok'
