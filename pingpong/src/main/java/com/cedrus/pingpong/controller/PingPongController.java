@@ -1,6 +1,5 @@
 package com.cedrus.pingpong.controller;
 
-import com.cedrus.pingpong.config.TopicConfig;
 import com.cedrus.pingpong.model.PingPongMessage;
 import com.cedrus.pingpong.model.PingPongRequest;
 import com.cedrus.pingpong.model.PingPongResponse;
@@ -15,19 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PingPongController {
-    private StartGameService startGameService;
-    private TopicConfig topicConfig;
+    private final StartGameService startGameService;
     @Autowired
-    public PingPongController(StartGameService startGameService, TopicConfig topicConfig) {
+    public PingPongController(StartGameService startGameService) {
         this.startGameService = startGameService;
-        this.topicConfig = topicConfig;
     }
 
     @PostMapping(value = "/ball")
     public ResponseEntity<PingPongResponse> startPing(@RequestBody PingPongRequest pingPongRequest) {
-        PingPongResponse response = new PingPongResponse();
+        final PingPongResponse response = new PingPongResponse();
 
-        String topic = pingPongRequest.getTopic();
+        final String topic = pingPongRequest.getTopic();
 
         try {
             if (pingPongRequest.getColor() == null) throw new Exception("Must include color!");

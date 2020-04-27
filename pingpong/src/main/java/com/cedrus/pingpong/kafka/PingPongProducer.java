@@ -17,9 +17,9 @@ import java.util.Properties;
 @Slf4j
 @Component
 public class PingPongProducer {
-    private KafkaConfig kafkaConfig;
-    private ObjectMapper objectMapper;
-    private Producer<String, String> producer;
+    private final KafkaConfig kafkaConfig;
+    private final ObjectMapper objectMapper;
+    private final Producer<String, String> producer;
 
     @Autowired public PingPongProducer(KafkaConfig kafkaConfig, ObjectMapper objectMapper) {
         this.kafkaConfig = kafkaConfig;
@@ -34,7 +34,7 @@ public class PingPongProducer {
 
     public void sendMessage(PingPongMessage message) throws JsonProcessingException {
         log.info("==== SENDING MESSAGE ====");
-        log.info("==== " + message.getTopic() + " ====");
+        log.info(message.getTopic());
 
         producer.send(new ProducerRecord<>(message.getTopic(), null, objectMapper.writeValueAsString(message)));
     }
