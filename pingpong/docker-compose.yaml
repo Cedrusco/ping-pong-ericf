@@ -8,7 +8,6 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_HOST_AUTH_METHOD: trust
-      POSTGRES_DB: ping-pong
   zookeeper:
     image: zookeeper
     container_name: "zookeeper"

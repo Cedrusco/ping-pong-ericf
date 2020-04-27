@@ -9,3 +9,9 @@ kafka:
   autoOffsetReset: latest
   teamAGroupId: team-a
   teamBGroupId: team-b
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    initialization-mode: always
+    driverClassName: org.postgresql.Driver
