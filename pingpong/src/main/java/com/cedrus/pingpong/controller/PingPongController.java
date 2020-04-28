@@ -1,31 +1,46 @@
 package com.cedrus.pingpong.controller;
 
-import com.cedrus.pingpong.kafka.PingPongProducer;
+import com.cedrus.pingpong.config.TopicConfig;
 import com.cedrus.pingpong.model.PingPongMessage;
 import com.cedrus.pingpong.model.PingPongRequest;
+import com.cedrus.pingpong.model.PingPongResponse;
+import com.cedrus.pingpong.service.StartGameService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class PingPongController {
-    @Autowired private PingPongProducer producer;
-
-    @RequestMapping(value = "/ball", method = RequestMethod.POST)
-    @ResponseBody
-    public String startPing(@RequestBody PingPongRequest pingPongRequest) throws JsonProcessingException {
-        addBall(pingPongRequest.getTopic(), pingPongRequest.getColor());
-        return "Started Ping!";
+    private final StartGameService startGameService;
+    private final TopicConfig topicConfig;
+    @Autowired
+    public PingPongController(StartGameService startGameService, TopicConfig topicConfig) {
+        this.startGameService = startGameService;
+        this.topicConfig = topicConfig;
     }
 
-//    @RequestMapping(value = "/pong", method = RequestMethod.POST)
-//    @ResponseBody
-//    public String startPong() {
-//        addBall("pong");
-//        return "Started Pong!";
-//    }
+    @PostMapping(value = "/ball")
+    public ResponseEntity<PingPongResponse> startPing(@RequestBody PingPongRequest pingPongRequest) {
+        final PingPongResponse response = new PingPongResponse();
 
-    private void addBall(String topic, String color) throws JsonProcessingException {
-        producer.sendMessage(new PingPongMessage(topic, "1", color));
+        try {
+            if (pingPongRequest.getColor() == null) throw new Exception("Must include color!");
+            addBall(pingPongRequest.getColor());
+        } catch (Exception e) {
+            response.setSuccess(false);
+            response.setResponseText(e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        }
+        response.setSuccess(true);
+        response.setResponseText("Started Game!");
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    private void addBall(String color) throws JsonProcessingException {
+        startGameService.startGame(new PingPongMessage(topicConfig.getPingPong(), "1", color, "A1")); //Must have a player "serve"
     }
 }

@@ -17,18 +17,24 @@ import java.util.Properties;
 @Slf4j
 @Component
 public class PingPongProducer {
-    @Autowired private KafkaConfig config;
+    private final KafkaConfig kafkaConfig;
+    private final ObjectMapper objectMapper;
+    private final Producer<String, String> producer;
 
-    public void sendMessage(PingPongMessage message) throws JsonProcessingException {
-        log.info("==== SENDING MESSAGE ====");
-        log.info("==== " + message.getTopic() + " ====");
+    @Autowired public PingPongProducer(KafkaConfig kafkaConfig, ObjectMapper objectMapper) {
+        this.kafkaConfig = kafkaConfig;
+        this.objectMapper = objectMapper;
+
         Properties props = new Properties();
-        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, config.getBootstrapServers());
+        props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaConfig.getBootstrapServers());
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, "org.apache.kafka.common.serialization.StringSerializer");
+        this.producer = new KafkaProducer<>(props);
+    }
 
-        Producer<String, String> producer = new KafkaProducer<>(props);
-        producer.send(new ProducerRecord<>(message.getTopic(), null, new ObjectMapper().writeValueAsString(message)));
-        producer.close();
+    public void sendMessage(PingPongMessage message) throws JsonProcessingException {
+        log.info("==== SENDING MESSAGE ON {} ====", message.getTopic());
+
+        producer.send(new ProducerRecord<>(message.getTopic(), null, objectMapper.writeValueAsString(message)));
     }
 }
